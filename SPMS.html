@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style2.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+    <script src="jquery.js" type="text/javascript"></script>
+    <title>SPMS (Stock Portfolio Management
+System)</title>
+</head>
+    
+<body>
+
+    <div class="header">               <!-- Navigation div starts -->
+        <p>Header Div </p>
+    </div>                      <!-- Navigation div end -->
+
+
+
+    <div class="add_portfolio">        <!-- button container to add portfolio -->
+
+
+        <input class="button" type="button" value="Add Portfolio" id="btn_slide"><br>    
+        <div class="port_name" id="port_name">
+            Name:<br>
+            <input type="text" placeholder="Type name here" id="type_p_id">
+            <input class="button" type="button" value="Add" id="btn_addP">
+        </div>
+
+    
+    </div>                <!--  end of button container div -->
+    
+    <div id="popup_container">
+        <!-- Popup Div Starts Here -->
+        <div id="popup_stock">
+        <!-- Stock add Form -->
+            <form action="#" id="form" method="post" name="form">
+            <img id="close" src="close.png" onclick ="div_hide()">
+            <h2>Stock Details</h2>
+            <hr>
+            <input id="stock_name" placeholder="Stock Name" type="text" >
+            <input id="stock_quantity" placeholder="Quantity" type="text" >
+            <input type="button" id="submit" value="Submit">
+            </form>
+        </div>
+        <!-- Popup Div Ends Here -->
+    </div>
+
+        <div class="container">     <!--  Portfolio container div -->
+            
+            
+        </div>
+
+
+    <div class="footer">
+      <p>Add text for footer</p>
+    </div>
+
+</body>
+</html>
