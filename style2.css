@@ -102,8 +102,102 @@
 
 }
 
+#stock_list{
+    width: 20%;
+    border-right: 2px solid grey;
+}
+
+#stock_list ul {
+  list-style-type: none;
+    padding: 0px;
+}
+
+#stock_list ul li { 
+    border-bottom: 2px solid lightgray;
+    padding-top: 2px;
+}
+
+#graph_range{
+    
+    display: flex;
+    justify-content: space-around;
+    width: 65%;
+    margin-left: 20%;
+    margin-bottom: 5px;
+    flex-flow: row wrap;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    text-decoration-color: white;
+    align-items: baseline;
+    color: white;
+    background-color: darkgrey;
+}
+
+
+#graph_stock_container{
+    
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0px;
+    //margin-bottom: 5px;
+    background-color: #f4f4f4;
+    width: 100%;
+    border-top: 2px solid grey;
+}
+
+#graph_canvas{
+    
+    width: 80%;
+    overflow: auto;
+}
+
+#graph_container{
+    
+    top:15%;
+    width: 100%;
+    height: 85%;
+    //border: 2px solid red;
+    display:none;
+    position: fixed;
+    
+}
+
+#graph_header{
+    
+    
+}
+
+#close_graph{
+    
+    width: 30px;
+    height: 30px;
+    float: right;
+}
+
+#graph_header p,img{
+    display: inline;
+    
+}
+
+#graph_header p{
+    
+    padding: 10px 10px;
+}
+
+#popup_graph{
+    
+    width: 70%;
+    border: 2px solid grey;
+    margin-left: 15%;
+    background-color: white;
+}
+
 .image:hover{
     
+    border-bottom: 3px solid darkorange;
+}
+
+input[type="button"]:hover{
     border-bottom: 3px solid darkorange;
 }
 

@@ -4,6 +4,12 @@ var unique_id; // holds unique id for each portfolio
 var key = "9XXW62FAHTQ2DG2P";   //API key
 var close_price;    //holds close price for a stock grabbed from API
 var sum;  //holds sum
+var date = [];
+var cp = [];
+var status = 0;
+var myChart;
+
+
 
 
 // create a new portfolio in the container div
@@ -42,6 +48,9 @@ $(document).ready(function(){
 
 
 
+
+
+
 // show and hide div for portfolio name input.
 $(document).ready(function(){
         
@@ -54,6 +63,9 @@ $(document).ready(function(){
 });
 
 
+
+
+
 // delete the portfolio when user clicks delete
 $(document).ready(function(){
     
@@ -64,6 +76,9 @@ $(document).ready(function(){
         
     });
  
+
+    
+    
     
 // Show the form to add stock in the portfolio    
     $(document).on("click", "#btn_addstock" , function() {
@@ -76,7 +91,26 @@ $(document).ready(function(){
         else
             alert("Only 50 Stock allowed !!");
     });
- 
+
+
+    
+    
+// Show the historical comparison of stock.    
+    $(document).on("click", "#btn_graph" , function() {
+        
+        var parent = $(this).parent().parent().find("#p_head");
+        
+        unique_id = parent.find("#uniqueid_container").val();
+        var portfolio_id = parent.find("#p_id").val();
+        
+        console.log(portfolio_id);
+        
+        graph_data_request(portfolio_id);
+        
+        //load_stocklist_into_graph(table_rows);
+        
+    });
+    
     
     
 //user submit to add stock into portfolio table, show sum of total value and store in localstorage    
@@ -109,19 +143,289 @@ $(document).ready(function(){
          
         unique_id = $(this).parent().parent().find("#p_head").find("#uniqueid_container").val();
         
-        $("#"+unique_id+" "+"#json-response").find('tbody').find('input[name="btn_radio"]').each(function(){
-            	if($(this).is(":checked")){
-                    $(this).parents("tr").remove();
-                }
-            });
+        var rows = $("#"+unique_id+" "+"#json-response").find('tbody tr');
+    
+        if(rows.length>0)
+        {
+            rows.find('input[name="btn_radio"]').each(function(){
+                    if($(this).is(":checked")){
+                        $(this).parents("tr").remove();
+                    }
+                });
+
+            calculateTotal(3); //sum the portfolio value again
+        }
         
-        calculateTotal(3); //sum the portfolio value again
+    });
+    
+    
+    $(document).on('change', '#stock_list ul li :checkbox', function(){
+    //$("#stock_list ul li").find(":checkbox").change(function() {
+        
+        var id = $("#"+unique_id+" "+"#p_id").val();
+        
+        var start_date = $("#graph_range #graph_date_start").val();
+        
+        var end_date = $("#graph_range #graph_date_end").val();
+        console.log(start_date+" "+end_date+"stocklist");
+        if(typeof(start_date) == "undefined" || typeof(end_date) == "undefined" )
+        {
+            start_date = "undefined";
+            end_date = "undefined";
+            console.log("type is obj");
+        }
+        update_chart_from_selected_stock_list(id, start_date, end_date);
+    });
+    
+    
+    $(document).on("click", "#graph_header #close_graph" , function() {
+        
+        hide_graph_div();
+        console.log("close fired");
+
+        document.getElementById("graph_date_start").value = "";
+        document.getElementById("graph_date_end").value = "";
+        
+        
+    });
+    
+    
+    $(document).on("click", "#graph_range #btn_update" , function() {
+        
+       var start_date = $(this).parent().find("#graph_date_start").val();
+        
+        var end_date = $(this).parent().find("#graph_date_end").val();
+        
+        var id = $("#"+unique_id+" "+"#p_id").val();
+        console.log(start_date+ end_date+" event fired");
+        update_chart_from_selected_stock_list(id, start_date, end_date);
         
     });
     
     
 });
 
+
+
+// add stock list into graph from portfolio
+function load_stocklist_into_graph(row){
+    
+    var stock_name = $('td', row).eq(0).text().trim();
+    
+    var li = $(document.createElement( 'li' ));
+    
+    var chkbox = $(document.createElement( 'input' )).attr({ type: 'checkbox', id: stock_name, name:'chkbox'}).prop('checked', true).addClass("chk");
+    
+    var label = $('<label/>').attr({ for: stock_name}).text(stock_name);
+    li.append(chkbox, label);
+     
+    $('#stock_list').find('ul').append(li);
+    
+}
+
+
+
+// main function that creates graph, grab data from API and update into chart.
+function graph_data_request(portfolio_id){
+      
+        var rows = $("#"+unique_id+" "+"#json-response").find('tbody tr');
+        console.log(rows.length);
+    
+        if(rows.length>0)
+        {   
+            
+            $('#stock_list').find('ul').empty();
+            rows.each(function(){
+
+                var stock_name = $('td', this).eq(0).text().trim();
+                
+                load_stocklist_into_graph(this);
+
+            });
+            
+            show_graph_div();
+            var string = "undefined";
+            update_chart_from_selected_stock_list(portfolio_id, string, string);
+            
+        }
+        else
+        alert("Please add some stock first !!");
+    
+}
+
+
+// Update the graph for user selected stock from the stock list in graph.
+function update_chart_from_selected_stock_list(portfolio_id, start_date, end_date){
+    
+    
+    var mychart = create_graph(portfolio_id);
+            
+            if(status == 0)
+            {
+               mychart = create_graph(portfolio_id);
+            }
+    
+    var list = $("#stock_list").find('ul li');
+            
+            list.find('input[name="chkbox"]').each(function(){
+                    if($(this).is(":checked")){
+                        var name = $(this).attr('id'); 
+                        var data_set = graph_API_request(name, start_date, end_date);
+                        mychart.data.datasets.push(data_set);
+                        mychart.update();
+                    }
+                });
+    
+}
+
+
+
+//API request for stcok in graph
+function graph_API_request(s_name, start_date, end_date){
+    
+    var dataset;
+    
+     $.ajax({
+            async: false,
+            url: "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+s_name+"&apikey="+key,
+            success: function(json) {
+                
+                if(!json.hasOwnProperty("Error Message"))
+                {
+                    
+                    var data = json["Time Series (Daily)"];
+                    
+                    if(start_date && end_date != "undefined" )
+                    {
+                        start_date = new Date(start_date).getTime();
+                        end_date = new Date(end_date).getTime();
+                    }
+                    
+                    for (const prop in data)
+                    {
+                        //prop =Date.parse(prop);
+                        //console.log(new Date(prop));
+                        var api_date = new Date(prop).getTime();
+                        
+                        console.log(typeof(start_date) + typeof(end_date)+typeof(api_date) + "Type"+ start_date+end_date+api_date);
+                        
+                        if(start_date && end_date != "undefined")
+                        {
+                      
+                            if(start_date <= api_date && end_date >= api_date)
+                            {
+                                var price = data[prop]['4. close'];
+                                cp.push(price);
+                                date.push(prop);
+                                console.log("inside date comparison");
+                                console.log(start_date);
+                                console.log(api_date);
+                            }
+                            else
+                                {
+                                console.log("inside else date comparison");
+                                }
+                                
+                        }
+                        else
+                        {
+                            var price = data[prop]['4. close'];
+                            cp.push(price);
+                            date.push(prop);
+                            console.log("out of date comparison");
+                        }
+                    }
+                    
+                    cp.reverse();
+                    date.reverse();
+                    dataset = create_new_graph_dataset(s_name, cp);
+                    
+                
+                }
+                
+                else{
+                    alert("Invalid Stock Name !!");
+                }
+            },
+                //if query fails
+            error: function(xhr, textStatus, errorThrown){
+                alert('Something is wrong, Server is not responding !');
+                close_price = "error";
+                
+            }
+        });
+    
+    cp = [];
+    date = [];
+    return dataset;
+    
+}
+
+//Push new dataset for a stock into graph
+function create_new_graph_dataset(name, data){
+    
+    var dataset = {
+            label: name,
+            data: data,
+            borderColor:"green",
+            borderWidth: 2,
+            fill: false
+}
+    
+return dataset;    
+}
+
+
+
+
+// creata a blank graph
+function create_graph(portfolio_id){
+    
+    $("#graph_header").find('p strong').text("Portfolio "+portfolio_id+" Performance");
+    var ctx = document.getElementById("myChart").getContext('2d');
+    
+    //console.log(typeof(myChart));
+    
+    if(status == 0)
+    {
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: date,
+                datasets: []
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+
+                    }],
+                  xAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+
+                    }]
+                }
+            }
+        });
+        
+        
+        status = 1;
+        //console.log("out of destroy");
+        return myChart;
+        
+    }
+    else {
+        myChart.destroy();
+        status = 0;
+        return 0;
+    }
+
+
+}
 
 // Function to calculate total stock value in a portfolio
 function calculateTotal(index)
@@ -149,8 +453,11 @@ function calculateTotal(index)
 
 // insert row into table as user provide stock information.
 function insert_row(name, value, qty){
+    
     var aray = merge_stock(name, value, qty);
+    
     console.log(aray.length);
+    
     if(Boolean(aray[3]))
     {
         make_row(aray[0], aray[1], aray[2]);
@@ -200,6 +507,9 @@ function merge_stock(name, value, qtt){
     var array = [name, unitvalue, qty, flag];
     return array;
 }
+
+
+
 
 //store portfolio information in localstorage
 function store_in_localstorage(id){
@@ -349,6 +659,15 @@ function check_empty() {
         return true;
 
     }
+}
+
+
+function show_graph_div(){
+    document.getElementById('graph_container').style.display = "block";
+}
+
+function hide_graph_div(){
+    document.getElementById('graph_container').style.display = "none";
 }
 
 //Function To Display Popup

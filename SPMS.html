@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <script src="jquery.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
     <title>SPMS (Stock Portfolio Management
 System)</title>
 </head>
@@ -44,6 +45,43 @@ System)</title>
             </form>
         </div>
         <!-- Popup Div Ends Here -->
+    </div>
+    
+    <div id="graph_container">
+        
+        <div id="popup_graph">
+            
+            <div id="graph_header" class="graph_header">
+                
+                <img id="close_graph" src="close.png">
+                <p><strong></strong></p>
+            
+            </div>
+            <div id="graph_stock_container" class="graph_stock">
+                <div id="stock_list" class="stock_list">
+                    
+                    <ul>
+                        
+                    </ul>
+                    
+                </div>
+                <div id="graph_canvas" class="graph_canvas">
+                    <canvas id="myChart" class="canvas"></canvas>
+                </div>
+            
+            </div>
+            <div id="graph_range" class="graph_range">
+                From: <input type="date" id="graph_date_start" class="graph_date_start">
+                T0: <input type="date" id="graph_date_end" class="graph_date_end">
+                <input type="button" id="btn_update" class="btn_update" value="Update">
+            
+            </div>
+        
+        
+        
+        </div>
+    
+    
     </div>
 
         <div class="container">     <!--  Portfolio container div -->
