@@ -21,7 +21,7 @@ $(document).ready(function(){
           
             if($('.container').children().length <= 9){
                 
-                console.log();
+                //console.log();
 
                 // creates a container div for portfolio
                 create_div();
@@ -167,14 +167,27 @@ $(document).ready(function(){
         var start_date = $("#graph_range #graph_date_start").val();
         
         var end_date = $("#graph_range #graph_date_end").val();
-        console.log(start_date+" "+end_date+"stocklist");
-        if(typeof(start_date) == "undefined" || typeof(end_date) == "undefined" )
+        //console.log(start_date+" "+end_date+"stocklist");
+        
+        var value = check_valid_dates(start_date, end_date);
+        console.log("value: "+value);
+        if(value == 0 )
         {
+            
+            //alert("Please provide valid dates and fill or clear both!!");
             start_date = "undefined";
             end_date = "undefined";
-            console.log("type is obj");
+            update_chart_from_selected_stock_list(id, start_date, end_date);
         }
-        update_chart_from_selected_stock_list(id, start_date, end_date);
+        else if(value == 1)
+        { 
+            alert("Please provide valid dates or clear both!!");
+        }
+        else if(value == 2)
+        {
+            update_chart_from_selected_stock_list(id, start_date, end_date);
+        }
+        
     });
     
     
@@ -192,18 +205,52 @@ $(document).ready(function(){
     
     $(document).on("click", "#graph_range #btn_update" , function() {
         
-       var start_date = $(this).parent().find("#graph_date_start").val();
+       var start_date = $("#graph_range #graph_date_start").val();
         
-        var end_date = $(this).parent().find("#graph_date_end").val();
+        var end_date = $("#graph_range #graph_date_end").val();;
         
-        var id = $("#"+unique_id+" "+"#p_id").val();
-        console.log(start_date+ end_date+" event fired");
-        update_chart_from_selected_stock_list(id, start_date, end_date);
+        console.log(check_valid_dates(start_date, end_date));
+        if(check_valid_dates(start_date, end_date)!= 2)
+        {
+            alert("Please provide valid dates and fill both !!");
+        }
+        else
+        {
+            var id = $("#"+unique_id+" "+"#p_id").val();
+            console.log(start_date+ end_date+" event fired");
+            update_chart_from_selected_stock_list(id, start_date, end_date);
+            
+        }
+            
         
     });
     
     
 });
+
+
+
+//function to check for valid dates
+function check_valid_dates(start_date, end_date){
+    
+     //var start_date = $("#graph_range #graph_date_start").val();
+        
+    //var end_date = $("#graph_range #graph_date_end").val();
+    console.log(start_date);
+    if(!start_date || !end_date)
+        return 0;
+    
+    start_date = new Date(start_date).getTime();
+    end_date = new Date(end_date).getTime();
+    console.log(start_date+end_date);
+    if(start_date > end_date)
+    {
+        return 1;
+    }
+    else
+        return 2;
+}
+
 
 
 
@@ -229,7 +276,7 @@ function load_stocklist_into_graph(row){
 function graph_data_request(portfolio_id){
       
         var rows = $("#"+unique_id+" "+"#json-response").find('tbody tr');
-        console.log(rows.length);
+        //console.log(rows.length);
     
         if(rows.length>0)
         {   
@@ -307,7 +354,7 @@ function graph_API_request(s_name, start_date, end_date){
                         //console.log(new Date(prop));
                         var api_date = new Date(prop).getTime();
                         
-                        console.log(typeof(start_date) + typeof(end_date)+typeof(api_date) + "Type"+ start_date+end_date+api_date);
+                        //console.log(typeof(start_date) + typeof(end_date)+typeof(api_date) + "Type"+ start_date+end_date+api_date);
                         
                         if(start_date && end_date != "undefined")
                         {
@@ -317,13 +364,11 @@ function graph_API_request(s_name, start_date, end_date){
                                 var price = data[prop]['4. close'];
                                 cp.push(price);
                                 date.push(prop);
-                                console.log("inside date comparison");
-                                console.log(start_date);
-                                console.log(api_date);
+                                
                             }
                             else
                                 {
-                                console.log("inside else date comparison");
+                                
                                 }
                                 
                         }
@@ -332,7 +377,7 @@ function graph_API_request(s_name, start_date, end_date){
                             var price = data[prop]['4. close'];
                             cp.push(price);
                             date.push(prop);
-                            console.log("out of date comparison");
+                            
                         }
                     }
                     
