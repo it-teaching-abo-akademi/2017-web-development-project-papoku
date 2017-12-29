@@ -75,6 +75,40 @@ $(document).ready(function(){
          $(this).parent().parent().remove();
         
     });
+    
+    
+    
+    $(document).on("click", "#btn_euro" , function() {
+        
+        var row = $(this).parent().parent().find("#json-response");
+        $('th', row.find("thead")).eq(1).text('Unit value \u20ac');
+        $('th', row.find("thead")).eq(3).text('Total value \u20ac');
+        
+        currency_conversion(this, "USD", "EUR", row);
+        
+        calculateTotal(3);
+        $(this).attr("disabled", "disabled");
+        $(this).parent().find("#btn_dollar").removeAttr("disabled");
+    });
+    
+    
+    
+    $(document).on("click", "#btn_dollar" , function() {
+        
+        var row = $(this).parent().parent().find("#json-response");
+        $('th', row).eq(1).text('Unit value $');
+        $('th', row).eq(3).text('Total value $');
+        //console.log(row);
+        
+        currency_conversion(this, "EUR", "USD", row);
+        
+        calculateTotal(3);
+        $(this).parent().find("#btn_euro").removeAttr("disabled");
+        $(this).attr("disabled", "disabled");
+        //exchange_rate_request_from_API("EUR","USD");
+        
+    });
+    
  
 
     
@@ -107,7 +141,6 @@ $(document).ready(function(){
         
         graph_data_request(portfolio_id);
         
-        //load_stocklist_into_graph(table_rows);
         
     });
     
@@ -508,20 +541,34 @@ function insert_row(name, value, qty){
         make_row(aray[0], aray[1], aray[2]);
         alert("Stock Exist. Information updated !!");
     }
-    else{
-        make_row(name, value, qty);
-        
-        }
+    else
+    {
+        make_row(name, value, qty);    
+    }
        
 }
 
 function make_row(name, value, qty){
     
+    var button_status = $("#"+unique_id+" "+"#p_head").find('#btn_euro').is(':disabled');
+    console.log(button_status);
     var table = $("#"+unique_id+" "+"#json-response");
-
-    var row = "<tr><td>"+ name +"</td><td>" + value + "</td><td>" + qty + "</td><td>" + (value*qty).toFixed(2) + "</td><td><input type='radio' name='btn_radio'></td></tr>";
     
-    $(table).find('tbody').append(row);
+    if(button_status)
+    {
+        var rate = exchange_rate_request_from_API("USD", "EUR");
+        
+        var row = "<tr><td>"+ name +"</td><td>" + (value*rate).toFixed(4) + "</td><td>" + qty + "</td><td>" + (value*rate*qty).toFixed(2) + "</td><td><input type='radio' name='btn_radio'></td></tr>";
+
+        $(table).find('tbody').append(row);
+        console.log("showing in Euro");
+    }
+    else
+    {
+        var row = "<tr><td>"+ name +"</td><td>" + value + "</td><td>" + qty + "</td><td>" + (value*qty).toFixed(2) + "</td><td><input type='radio' name='btn_radio'></td></tr>";
+
+        $(table).find('tbody').append(row);
+    }
     
 }
 
@@ -638,16 +685,74 @@ function unit_value(s_name){
         });
     }
     
-//$.get( "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+s_name+"&apikey="+key, function(data, status){
-//    
-//    close_price = data["Time Series (Daily)"];
-//    close_price = data["Time Series (Daily)"][Object.keys(close_price)[0]]["4. close"];
-//    console.log(close_price);
-//    //return close_price;
-//    
-//}).fail(function(){
-//            alert ("ops !! Server is not responding."); });
-//        
+
+
+
+//Function to save stock prices in dollar, before converting to euros.
+function currency_conversion(currency_button, currency_from, currency_to, row){
+    
+   //unique_id = $(currency_button).parent().find("#uniqueid_container").val();
+        //var count = 0;
+        
+        //console.log(row);
+        
+        var rate = exchange_rate_request_from_API(currency_from, currency_to);
+        
+        row.find('tbody tr').each(function (){
+            
+            var unit_value = $('td', this).eq(1).text().trim();
+            var quantity = $('td', this).eq(2).text().trim();
+            
+            $('td', this).eq(1).text((unit_value*rate).toFixed(2));
+            $('td', this).eq(3).text((quantity*(unit_value*rate)).toFixed(2));
+            
+        });
+    
+}
+
+
+
+
+
+//API request for stcok in graph
+function exchange_rate_request_from_API(currency_from, currency_to){
+    
+    var data;
+     
+    $.ajax({
+         
+            async: false,
+            url: "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency="+currency_from+"&to_currency="+currency_to+"&apikey=9XXW62FAHTQ2DG2P",
+            success: function(json) {
+                
+                if(!json.hasOwnProperty("Error Message"))
+                {
+                    
+                    data = json["Realtime Currency Exchange Rate"];
+                    data = data["5. Exchange Rate"];
+                    console.log(data);
+                    
+                
+                }
+                
+                else
+                {
+                    alert("Please check URL and currency name !!");
+                }
+                
+            },
+                //if query fails
+            error: function(xhr, textStatus, errorThrown){
+                alert('Something is wrong, Server is not responding !');
+                
+            }
+        });
+    
+    return data;
+    
+}
+
+
 
 // display user given portfolio name in portfolio
 function portfolio_name(){
@@ -682,7 +787,7 @@ function create_div(){
 // add a new portfolio
 function add_portfolio(){
     
-    $( "<div class='p_head' id='p_head'> <!-- Currency and portfolio header container div --><label class='label'>ID: <input type='text' id='p_id' readonly></label><input id='uniqueid_container' type='hidden'><input type='button' id='btn_euro' value=&#8364Euro><input type='button' id='btn_dollar' value='$ Dollar'><img class='image' id='image' src='trash.png' alt='Trash Box' height='20' width='25'></div><div class='p_table' id='p_table'> <!--  table container div --><table id='json-response'><thead><tr>                            <th>Name</th><th>Unit Value</th><th>Quantity</th><th>Total Value</th><th>Select</th></tr></thead><tbody></tbody>    </table><p><strong>Total Stock Value: </strong></p></div><div class='p_buttons' id='p_buttons'> <!--  stock add, delete and graph button container div --><input type='button' id='btn_addstock' value='Add Stock'><input type='button' id='btn_graph' value='Show Graph'><input type='button' id='btn_remove' value='Remove Selected'></div>").appendTo("#"+unique_id);
+    $( "<div class='p_head' id='p_head'> <!-- Currency and portfolio header container div --><label class='label'>ID: <input type='text' id='p_id' readonly></label><input id='uniqueid_container' type='hidden'><input type='button' id='btn_euro' value='\u20ac Euro'><input type='button' id='btn_dollar' value='$ Dollar'><img class='image' id='image' src='trash.png' alt='Trash Box' height='20' width='25'></div><div class='p_table' id='p_table'> <!--  table container div --><table id='json-response'><thead><tr>                            <th>Name</th><th>Unit Value $</th><th>Quantity</th><th>Total Value $</th><th>Select</th></tr></thead><tbody></tbody>    </table><p><strong>Total Stock Value: </strong></p></div><div class='p_buttons' id='p_buttons'> <!--  stock add, delete and graph button container div --><input type='button' id='btn_addstock' value='Add Stock'><input type='button' id='btn_graph' value='Show Graph'><input type='button' id='btn_remove' value='Remove Selected'></div>").appendTo("#"+unique_id);
     
     var table = $("#"+unique_id+" "+"#json-response");
     $(table).scrollTableBody;
