@@ -47,6 +47,7 @@
     border: none;
 }
 
+
 .port_name{
     
     margin-top: 10px;
@@ -225,90 +226,97 @@ th {
     
         width: 40%;
     }
+    
+    #graph_stock_container{
+        
+        flex-flow: row wrap;
+    }
+    
+    #stock_list{
+        width: 100%;
+    }
+    
 }
 
 
 
 
 #popup_container {
-width:50%;
-height:60%;
-top:20%;
-left:25%;
-display:none;
-position:fixed;
-background-color:#b8c6d1;
-overflow:auto;
+    width:50%;
+    height:50%;
+    top:20%;
+    left:25%;
+    display:none;
+    position:fixed;
+    background-color:#b8c6d1;
+    overflow:auto;
+    text-align: center;
+
 }
 
 img#close {
-position:absolute;
-right:2px;
-height: 30px;
-width: 35px;
-top:2px;
-cursor:pointer;
+    position:absolute;
+    right:2px;
+    height: 30px;
+    width: 35px;
+    top:2px;
+    cursor:pointer;
 
 }
+
 div#popup_stock {
-position:absolute;
-left:50%;
-top:12%;
-margin-left:-200px;
-font-family:sans-serif;
+
+    width: 80%;
+    position:absolute;
+    left:10%;
+    top:12%;
+    font-family:sans-serif;
+    margin: auto;
 }
 
 form {
-max-width:400px;
-min-width:300px;
-padding:10px 50px;
-border:2px solid gray;
-border-radius:10px;
-font-family:sans-serif;
-background-color:#fff
+    max-width:100%;
+    min-width:50%;
+    padding:10px 30px;
+    border:2px solid gray;
+    border-radius:10px;
+    font-family:sans-serif;
+    background-color:#fff;
 }
 
-p {
-margin-top:30px
-}
+
 h2 {
-background-color:#f2f2f2;
-padding:20px 35px;
-margin:-10px -50px;
-text-align:center;
-border-radius:10px 10px 0 0;
-font-size: 22px;
+    background-color:#f2f2f2;
+    padding:10px 15px;
+    text-align:center;
+    border-radius:10px 10px 0 0;
+    font-size: 20px;
 }
 
-hr {
-margin:10px -50px;
-border:0;
-border-top:1px solid #ccc
-}
 
-#popup_stock input[type=text] {
-width:100%;
-padding:8px;
-margin-top:15px;
-border: none;
-border-bottom:1px solid #ccc;
-font-size:15px;
-font-family:sans-serif;
+#popup_stock input[type=text], input[type=number] {
+    width:100%;
+    padding:8px;
+    margin-top:15px;
+    border: none;
+    border-bottom:1px solid #ccc;
+    font-size:15px;
+    font-family:sans-serif;
 }
 
 
 #submit {
     margin-top: 20px;
-text-decoration:none;
-width:100%;
-padding:10px 0;
-font-size:18px;
-cursor:pointer;
-border-radius:5px;
-text-align:center;
-display:block;
-background-color:#0093ff;
-color:#fff;
+    text-decoration:none;
+    width:100%;
+    padding:10px 0;
+    font-size:18px;
+    cursor:pointer;
+    border-radius:5px;
+    text-align:center;
+    display:block;
+    background-color:#0093ff;
+    color:#fff;
 
 }
 

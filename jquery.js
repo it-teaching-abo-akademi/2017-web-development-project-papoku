@@ -98,7 +98,7 @@ $(document).ready(function(){
         var row = $(this).parent().parent().find("#json-response");
         $('th', row).eq(1).text('Unit value $');
         $('th', row).eq(3).text('Total value $');
-        //console.log(row);
+    
         
         currency_conversion(this, "EUR", "USD", row);
         
@@ -335,8 +335,7 @@ function graph_data_request(portfolio_id){
 
 
 // Update the graph for user selected stock from the stock list in graph.
-function update_chart_from_selected_stock_list(portfolio_id, start_date, end_date){
-    
+function update_chart_from_selected_stock_list(portfolio_id, start_date, end_date){ 
     
     var mychart = create_graph(portfolio_id);
             
@@ -348,13 +347,16 @@ function update_chart_from_selected_stock_list(portfolio_id, start_date, end_dat
     var list = $("#stock_list").find('ul li');
             
             list.find('input[name="chkbox"]').each(function(){
-                    if($(this).is(":checked")){
+                
+                    if($(this).is(":checked"))
+                    {
                         var name = $(this).attr('id'); 
                         var data_set = graph_API_request(name, start_date, end_date);
                         mychart.data.datasets.push(data_set);
                         mychart.update();
                     }
-                });
+                
+            });
     
 }
 
@@ -382,12 +384,8 @@ function graph_API_request(s_name, start_date, end_date){
                     }
                     
                     for (const prop in data)
-                    {
-                        //prop =Date.parse(prop);
-                        //console.log(new Date(prop));
+                    {    
                         var api_date = new Date(prop).getTime();
-                        
-                        //console.log(typeof(start_date) + typeof(end_date)+typeof(api_date) + "Type"+ start_date+end_date+api_date);
                         
                         if(start_date && end_date != "undefined")
                         {
@@ -445,7 +443,7 @@ function create_new_graph_dataset(name, data){
     var dataset = {
             label: name,
             data: data,
-            borderColor:"green",
+            borderColor:randomColors(),
             borderWidth: 2,
             fill: false
 }
@@ -459,7 +457,7 @@ return dataset;
 // creata a blank graph
 function create_graph(portfolio_id){
     
-    $("#graph_header").find('p strong').text("Portfolio "+portfolio_id+" Performance");
+    $("#graph_header").find('p strong').text("Portfolio "+portfolio_id+" Performance $");
     var ctx = document.getElementById("myChart").getContext('2d');
     
     //console.log(typeof(myChart));
@@ -486,6 +484,11 @@ function create_graph(portfolio_id){
                         }
 
                     }]
+                },
+                
+                title: {
+                    display: true,
+                    text: 'Price History Chart (Max 3 months)'
                 }
             }
         });
@@ -504,6 +507,18 @@ function create_graph(portfolio_id){
 
 
 }
+
+
+
+var randomColors = function() {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+
+
 
 // Function to calculate total stock value in a portfolio
 function calculateTotal(index)
@@ -688,13 +703,8 @@ function unit_value(s_name){
 
 
 
-//Function to save stock prices in dollar, before converting to euros.
+//Function to convert stock between dollar and euro.
 function currency_conversion(currency_button, currency_from, currency_to, row){
-    
-   //unique_id = $(currency_button).parent().find("#uniqueid_container").val();
-        //var count = 0;
-        
-        //console.log(row);
         
         var rate = exchange_rate_request_from_API(currency_from, currency_to);
         
@@ -787,7 +797,7 @@ function create_div(){
 // add a new portfolio
 function add_portfolio(){
     
-    $( "<div class='p_head' id='p_head'> <!-- Currency and portfolio header container div --><label class='label'>ID: <input type='text' id='p_id' readonly></label><input id='uniqueid_container' type='hidden'><input type='button' id='btn_euro' value='\u20ac Euro'><input type='button' id='btn_dollar' value='$ Dollar'><img class='image' id='image' src='trash.png' alt='Trash Box' height='20' width='25'></div><div class='p_table' id='p_table'> <!--  table container div --><table id='json-response'><thead><tr>                            <th>Name</th><th>Unit Value $</th><th>Quantity</th><th>Total Value $</th><th>Select</th></tr></thead><tbody></tbody>    </table><p><strong>Total Stock Value: </strong></p></div><div class='p_buttons' id='p_buttons'> <!--  stock add, delete and graph button container div --><input type='button' id='btn_addstock' value='Add Stock'><input type='button' id='btn_graph' value='Show Graph'><input type='button' id='btn_remove' value='Remove Selected'></div>").appendTo("#"+unique_id);
+    $( "<div class='p_head' id='p_head'> <!-- Currency and portfolio header container div --><label class='label'>ID: <input type='text' id='p_id' readonly></label><input id='uniqueid_container' type='hidden'><input type='button' id='btn_euro' value='\u20ac Euro'><input type='button' id='btn_dollar' value='$ Dollar' disabled><img class='image' id='image' src='trash.png' alt='Trash Box' height='20' width='25'></div><div class='p_table' id='p_table'> <!--  table container div --><table id='json-response'><thead><tr>                            <th>Name</th><th>Unit Value $</th><th>Quantity</th><th>Total Value $</th><th>Select</th></tr></thead><tbody></tbody>    </table><p><strong>Total Stock Value: </strong></p></div><div class='p_buttons' id='p_buttons'> <!--  stock add, delete and graph button container div --><input type='button' id='btn_addstock' value='Add Stock'><input type='button' id='btn_graph' value='Show Graph'><input type='button' id='btn_remove' value='Remove Selected'></div>").appendTo("#"+unique_id);
     
     var table = $("#"+unique_id+" "+"#json-response");
     $(table).scrollTableBody;
@@ -798,12 +808,15 @@ function add_portfolio(){
 // Validating Empty Field
 function check_empty() {
     
-    if (document.getElementById('stock_name').value == "" || document.getElementById('stock_quantity').value == "") {
+    if (document.getElementById('stock_name').value == "" || document.getElementById('stock_quantity').value == "") 
+    {
         alert("Please fill all !");
         return false;
-    } else {
+    } 
+    else 
+    {
 
-    alert("Form Submitted Successfully...");
+        //alert("Form Submitted Successfully...");
 
         document.getElementById("form").reset();
         return true;
