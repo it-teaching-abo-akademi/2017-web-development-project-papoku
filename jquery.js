@@ -80,6 +80,7 @@ $(document).ready(function(){
     
     $(document).on("click", "#btn_euro" , function() {
         
+        unique_id = $(this).parent().find("#uniqueid_container").val();
         var row = $(this).parent().parent().find("#json-response");
         $('th', row.find("thead")).eq(1).text('Unit value \u20ac');
         $('th', row.find("thead")).eq(3).text('Total value \u20ac');
