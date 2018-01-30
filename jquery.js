@@ -77,7 +77,7 @@ $(document).ready(function(){
     });
     
     
-    
+// Convert prices to Euro when user clicks euro button    
     $(document).on("click", "#btn_euro" , function() {
         
         unique_id = $(this).parent().find("#uniqueid_container").val();
@@ -85,6 +85,7 @@ $(document).ready(function(){
         $('th', row.find("thead")).eq(1).text('Unit value \u20ac');
         $('th', row.find("thead")).eq(3).text('Total value \u20ac');
         
+    //function to convert from  dollar to euro
         currency_conversion(this, "USD", "EUR", row);
         
         calculateTotal(3);
@@ -93,14 +94,14 @@ $(document).ready(function(){
     });
     
     
-    
+// Convert prices to dollar($) when user clicks dollar button     
     $(document).on("click", "#btn_dollar" , function() {
         
         var row = $(this).parent().parent().find("#json-response");
         $('th', row).eq(1).text('Unit value $');
         $('th', row).eq(3).text('Total value $');
     
-        
+    //function to convert from euro to dollar
         currency_conversion(this, "EUR", "USD", row);
         
         calculateTotal(3);
@@ -172,7 +173,7 @@ $(document).ready(function(){
                 
     });
     
-// Function that delete selected stock in portfolio.    
+// Function that delete selected stock from portfolio.    
     $(document).on("click", "#btn_remove" , function() {
          
         unique_id = $(this).parent().parent().find("#p_head").find("#uniqueid_container").val();
@@ -194,14 +195,14 @@ $(document).ready(function(){
     
     
     $(document).on('change', '#stock_list ul li :checkbox', function(){
-    //$("#stock_list ul li").find(":checkbox").change(function() {
+    
         
         var id = $("#"+unique_id+" "+"#p_id").val();
         
         var start_date = $("#graph_range #graph_date_start").val();
         
         var end_date = $("#graph_range #graph_date_end").val();
-        //console.log(start_date+" "+end_date+"stocklist");
+        
         
         var value = check_valid_dates(start_date, end_date);
         console.log("value: "+value);
@@ -244,6 +245,7 @@ $(document).ready(function(){
         var end_date = $("#graph_range #graph_date_end").val();;
         
         console.log(check_valid_dates(start_date, end_date));
+        
         if(check_valid_dates(start_date, end_date)!= 2)
         {
             alert("Please provide valid dates and fill both !!");
@@ -267,16 +269,13 @@ $(document).ready(function(){
 //function to check for valid dates
 function check_valid_dates(start_date, end_date){
     
-     //var start_date = $("#graph_range #graph_date_start").val();
-        
-    //var end_date = $("#graph_range #graph_date_end").val();
-    console.log(start_date);
     if(!start_date || !end_date)
         return 0;
     
     start_date = new Date(start_date).getTime();
     end_date = new Date(end_date).getTime();
     console.log(start_date+end_date);
+    
     if(start_date > end_date)
     {
         return 1;
@@ -330,7 +329,7 @@ function graph_data_request(portfolio_id){
             
         }
         else
-        alert("Please add some stock first !!");
+            alert("Please add some stock first !!");
     
 }
 
@@ -363,7 +362,7 @@ function update_chart_from_selected_stock_list(portfolio_id, start_date, end_dat
 
 
 
-//API request for stcok in graph
+//Function to update stock prices into chart from API
 function graph_API_request(s_name, start_date, end_date){
     
     var dataset;
@@ -510,7 +509,7 @@ function create_graph(portfolio_id){
 }
 
 
-
+// function that return random color for each stock to be represented in graph
 var randomColors = function() {
     var r = Math.floor(Math.random() * 255);
     var g = Math.floor(Math.random() * 255);
@@ -564,6 +563,8 @@ function insert_row(name, value, qty){
        
 }
 
+
+// function that makes row in stock table with stock details
 function make_row(name, value, qty){
     
     var button_status = $("#"+unique_id+" "+"#p_head").find('#btn_euro').is(':disabled');
@@ -588,6 +589,10 @@ function make_row(name, value, qty){
     
 }
 
+
+
+
+// While adding new stock, merge price, quantity if it already exists in the portfolio
 function merge_stock(name, value, qtt){
     
     var rows = $("#"+unique_id+" "+"#p_table").find('table tbody tr');
@@ -653,29 +658,24 @@ function store_in_localstorage(id){
 
     
     var myjson = JSON.stringify(array);
-            //console.log(myjson);
+            
         
-    if (typeof(Storage) !== "undefined") {
+    if (typeof(Storage) !== "undefined")
+    {
         localStorage.setItem(id, myjson);
-        }
+    }
     else
         alert("Brwser doesn't support web storage !!");
-
-        console.log(localStorage.getItem(id));
-//    array.forEach( function (arrayItem)
-//{
-//    var x = arrayItem.hasOwnProperty("NOK");
-//        console.log(x);
-//});
-    
+ 
 
 }
+
 
 
 //Function to find latest stock price
 function unit_value(s_name){
      
-    //close_price ="";
+    
     $.ajax({
             async: false,
             url: "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+s_name+"&apikey="+key,
@@ -773,12 +773,18 @@ function portfolio_name(){
     $("#"+unique_id+" "+"#uniqueid_container").val(unique_id);
 }
 
+
+
+
 // return a unique portfolio id
 function unique_portfolio_id(){
     
     ++id;
     return "p"+id;
 }
+
+
+
 
 //creates a container div for portfolio to be added
 function create_div(){
@@ -817,7 +823,6 @@ function check_empty() {
     else 
     {
 
-        //alert("Form Submitted Successfully...");
 
         document.getElementById("form").reset();
         return true;
@@ -826,15 +831,21 @@ function check_empty() {
 }
 
 
+
+// function that shows graph when user clicks to show graph
 function show_graph_div(){
     document.getElementById('graph_container').style.display = "block";
 }
 
+
+
+//function that hides the graph from user
 function hide_graph_div(){
     document.getElementById('graph_container').style.display = "none";
 }
 
-//Function To Display Popup
+
+//Function To Display Popup form
 function div_show() {
        
     document.getElementById('popup_container').style.display = "block";
@@ -844,7 +855,7 @@ function div_show() {
 }
 
 
-//Function to Hide Popup
+//Function to Hide Popup form
 function div_hide(){
     
     document.getElementById('popup_container').style.display = "none";
